@@ -6,18 +6,28 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
 import com.servlet.dto.BookDTO;
 
 public class BookDAO {
 	
-	String driver = "oracle.jdbc.driver.OracleDriver";
-	String url = "jdbc:oracle:thin:@localhost:1521:xe";
-	String id = "scott";
-	String pw = "tiger";
+	DataSource dataSource; //connection pool 사용위해 선언
+	
+	//주석한것 connection pool 생성으로 필요없어짐
+	//connection pool 위해 새로 작성한것 표시
+//	String driver = "oracle.jdbc.driver.OracleDriver";
+//	String url = "jdbc:oracle:thin:@localhost:1521:xe";
+//	String id = "scott";
+//	String pw = "tiger";
 	
 	public BookDAO() {
 		try {
-			Class.forName(driver);
+//			Class.forName(driver);
+			Context context = new InitialContext(); //connection pool
+			dataSource = (DataSource)context.lookup("java:comp/env/jdbc/Oracle11g"); //connection pool
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -32,7 +42,8 @@ public class BookDAO {
 		ResultSet res = null;
 		
 		try {
-			con = DriverManager.getConnection(url, id, pw);
+//			con = DriverManager.getConnection(url, id, pw);
+			con = dataSource.getConnection(); //connection pool
 			String sql = "SELECT * FROM book";
 			pstmt = con.prepareStatement(sql);
 			res = pstmt.executeQuery();
